@@ -1,10 +1,30 @@
 # Nord Ledger
 
-**Angular 21 + TypeScript + RESTful API digital banking sandbox**
+**A calmer way to see, move, and manage money.**
 
-Nord Ledger is an original portfolio demonstration of a fictional Nordic digital banking experience. It connects a production Angular 21 single-page application to a real HTTP/JSON API running in a JavaScript Worker. No bank accounts, actual cards, private customer data, real payments, or external banking services are involved.
+[![Nord Ledger digital banking concept, illustrated in its own Nordic green design language](assets/nord-ledger-cover.svg)](https://sandeepariyar.github.io/NORD-LEDGER-Angular21-Banking-Platform/)
 
-**Design system:** Open [`/design-system`](./design-system/) alongside the running application to explore the shared semantic tokens, reusable controls, card finishes, interactive states, typography and accessibility guidance. The [design-system source guide](design-system/README.md) explains the architecture and component contracts.
+### [Try the live banking experience](https://sandeepariyar.github.io/NORD-LEDGER-Angular21-Banking-Platform/) &nbsp; · &nbsp; [Explore the design system](https://sandeepariyar.github.io/NORD-LEDGER-Angular21-Banking-Platform/design-system/) &nbsp; · &nbsp; [Browse the REST API](#rest-endpoints)
+
+> **PORTFOLIO CONCEPT / ANGULAR 21 / REST API / DESIGN SYSTEM**  
+> Designed and engineered by **Sandeep Pariyar**.
+
+Nord Ledger is an original, interactive Nordic digital banking concept. Its Angular 21 interface, JavaScript REST API, and component foundations are developed together as a coherent product experience. The demo makes fictional transfers, card customization, profile settings and spending insights genuinely interactive.
+
+The hero above is an *illustrative product composition*. Open the live app to explore the actual implementation. No real banking services, financial transactions, card numbers, private identity data, or customer accounts are involved.
+
+## Design language
+
+Deep forest, considered spacing, an expressive editorial type accent, and a restrained lime signal establish an interface designed around clarity and trust. The design system is a distinct part of this repository, with source-shared tokens and reusable controls used by the product and its component explorer.
+
+| Foundation | Implementation |
+| --- | --- |
+| **Color & semantics** | Forest `#10332D`, lime `#C6F78D`, canvas `#F4F6F3`, surfaces and feedback roles |
+| **Card expression** | Nordic, Aurora and Carbon visual finishes, common card anatomy |
+| **Control behavior** | Focus, hover, loading, disabled, validation and toggle states |
+| **Product patterns** | Navigation, balance summaries, transactions, forms, feedback and responsive grids |
+
+[View source tokens](src/design-system/tokens.css) · [Component primitives](src/design-system/components.css) · [Design-system documentation](design-system/README.md)
 
 ## What works
 
@@ -93,6 +113,22 @@ Card collection checkout uses `POST /api/cards` with `{ "productId": "virtual-de
 ## Deployment structure
 
 `npm run build` compiles Angular into `dist/angular/browser`, then embeds those assets in `dist/server/index.js`, alongside same-origin REST routes. The generated Worker is what the Site deploys; source is under `src/` and `worker/`.
+
+### Public GitHub Pages preview
+
+The [live GitHub Pages preview](https://sandeepariyar.github.io/NORD-LEDGER-Angular21-Banking-Platform/) builds the **real Angular application**, not a screenshot or a non-functional mockup. The [Pages workflow](.github/workflows/pages.yml) runs the Angular production build and API checks, then publishes the compiled client and design-system explorer under the repository's GitHub Pages path.
+
+GitHub Pages is static hosting and cannot execute a Worker. Accordingly, the published Angular client calls the public **Nord Ledger demo REST API** hosted by the companion Cloudflare Worker at `nord-ledger-angular-bank-demo.sandeep-pariyar.chatgpt.site`. The Worker accepts browser CORS requests only from `https://sandeepariyar.github.io` and exposes the temporary `X-Demo-Session` response header. The API's own same-origin deployment remains available as well. Temporary state is held per demo session and may reset on Worker restart.
+
+To build the GitHub Pages variant locally:
+
+```bash
+npm ci
+npm run build -- --base-href=/NORD-LEDGER-Angular21-Banking-Platform/
+npm test
+```
+
+For a release or review, verify transfers, card changes, and reset against the live REST backend after the GitHub Pages deployment finishes.
 
 Designed and engineered as an original fintech interface demo.
 

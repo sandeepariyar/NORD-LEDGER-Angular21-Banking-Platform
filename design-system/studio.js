@@ -75,3 +75,7 @@ const observer = new IntersectionObserver(entries => {
   }
 }, {rootMargin: '-12% 0px -70% 0px', threshold: 0});
 document.querySelectorAll('.section-anchor').forEach(section => observer.observe(section));
+// Keep links to the product relative so this explorer also works beneath the
+// GitHub Pages repository prefix rather than only at a domain root.
+document.querySelectorAll('a[href="/"]').forEach(link => link.setAttribute('href', '../'));
+

@@ -10,7 +10,10 @@ async function req(path, opts={}) {
 
 const health = await req('/api/health');
 assert.equal(health.body.status, 'ok');
-const designResponse = await worker.fetch(new Request(origin + '/design-system'));
+const redirect = await worker.fetch(new Request(origin + '/design-system'));
+assert.equal(redirect.status, 308);
+assert.equal(redirect.headers.get('Location'), origin + '/design-system/');
+const designResponse = await worker.fetch(new Request(origin + '/design-system/'));
 assert.equal(designResponse.status, 200);
 const designHtml = await designResponse.text();
 assert.ok(designHtml.includes('Nord Ledger | Design System'));
@@ -18,6 +21,19 @@ assert.ok(designHtml.includes('Controls & states'));
 const tokenResponse = await worker.fetch(new Request(origin + '/design-system/assets/tokens.css'));
 assert.equal(tokenResponse.status, 200);
 assert.ok((await tokenResponse.text()).includes('--nl-forest'));
+const preflight = await worker.fetch(new Request(origin + '/api/transfers', {
+  method: 'OPTIONS',
+  headers: {Origin: 'https://sandeepariyar.github.io', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'x-demo-session,idempotency-key,content-type'}
+}));
+assert.equal(preflight.status, 204);
+assert.equal(preflight.headers.get('Access-Control-Allow-Origin'), 'https://sandeepariyar.github.io');
+assert.ok(preflight.headers.get('Access-Control-Allow-Headers').includes('Idempotency-Key'));
+const crossOriginOverview = await worker.fetch(new Request(origin + '/api/overview', {headers: {Origin: 'https://sandeepariyar.github.io'}}));
+assert.equal(crossOriginOverview.status, 200);
+assert.equal(crossOriginOverview.headers.get('Access-Control-Expose-Headers'), 'X-Demo-Session');
+assert.ok(crossOriginOverview.headers.get('X-Demo-Session'));
+const untrustedPreflight = await worker.fetch(new Request(origin + '/api/transfers', {method: 'OPTIONS', headers: {Origin: 'https://not-our-repo.example'}}));
+assert.equal(untrustedPreflight.status, 403);
 const componentResponse = await worker.fetch(new Request(origin + '/design-system/assets/components.css'));
 assert.equal(componentResponse.status, 200);
 assert.ok((await componentResponse.text()).includes('.nl-button--primary'));

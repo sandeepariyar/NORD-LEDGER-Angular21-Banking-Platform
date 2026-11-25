@@ -26,6 +26,13 @@ type TransferResponse = {success: boolean; reference: string; overview: Overview
 export class AppComponent implements OnInit {
   private http = inject(HttpClient);
   private session = sessionStorage.getItem('nord-ledger-session') ?? '';
+  // GitHub Pages serves static Angular assets; the public demo Worker hosts
+  // the actual REST endpoints. All other deployments use same-origin /api.
+  private apiUrl(path: string): string {
+    return window.location.hostname === 'sandeepariyar.github.io'
+      ? `https://nord-ledger-angular-bank-demo.sandeep-pariyar.chatgpt.site${path}`
+      : path;
+  }
 
   readonly pages: {id: Page; label: string; icon: string}[] = [
     {id: 'overview', label: 'Overview', icon: '▦'},
@@ -107,7 +114,7 @@ export class AppComponent implements OnInit {
     this.loading.set(true);
     this.error.set('');
     try {
-      const response = await firstValueFrom(this.http.get<Overview>('/api/overview', {observe: 'response', headers: this.headers()}));
+      const response = await firstValueFrom(this.http.get<Overview>(this.apiUrl('/api/overview'), {observe: 'response', headers: this.headers()}));
       this.data.set(response.body);
       const id = response.headers.get('X-Demo-Session');
       if (id) {this.session = id; sessionStorage.setItem('nord-ledger-session', id);}
@@ -176,7 +183,7 @@ export class AppComponent implements OnInit {
     this.error.set('');
     this.cardCatalogLoading.set(true);
     try {
-      this.cardProducts.set(await firstValueFrom(this.http.get<CardProduct[]>('/api/card-products', {headers: this.headers()})));
+      this.cardProducts.set(await firstValueFrom(this.http.get<CardProduct[]>(this.apiUrl('/api/card-products'), {headers: this.headers()})));
     } catch {this.error.set('Could not load the demo card collection. Reset the sandbox if your session expired.');}
     finally {this.cardCatalogLoading.set(false);}
   }
@@ -196,7 +203,7 @@ export class AppComponent implements OnInit {
     this.cardIssuing.set(true);
     this.error.set('');
     try {
-      const result = await firstValueFrom(this.http.post<{card: BankCard; overview: Overview}>('/api/cards', {
+      const result = await firstValueFrom(this.http.post<{card: BankCard; overview: Overview}>(this.apiUrl('/api/cards'), {
         productId: product.id, accountId: this.selectedCardAccountId(), designId: this.selectedCardTheme()
       }, {headers: this.headers()}));
       this.data.set(result.overview);
@@ -214,7 +221,7 @@ export class AppComponent implements OnInit {
     this.activityLoading.set(true);
     this.error.set('');
     try {
-      const activity = await firstValueFrom(this.http.get<CardActivity[]>(`/api/cards/${card.id}/activity`, {headers: this.headers()}));
+      const activity = await firstValueFrom(this.http.get<CardActivity[]>(this.apiUrl(`/api/cards/${card.id}/activity`), {headers: this.headers()}));
       if (this.activityCardId() === card.id) this.cardActivity.set(activity);
     } catch {this.error.set('Could not load card activity. Please retry.');}
     finally {this.activityLoading.set(false);}
@@ -228,7 +235,7 @@ export class AppComponent implements OnInit {
     this.cardClosing.set(true);
     this.error.set('');
     try {
-      const overview = await firstValueFrom(this.http.delete<Overview>(`/api/cards/${id}`, {headers: this.headers()}));
+      const overview = await firstValueFrom(this.http.delete<Overview>(this.apiUrl(`/api/cards/${id}`), {headers: this.headers()}));
       this.data.set(overview);
       this.closingCardId.set(null);
       if (this.activityCardId() === id) this.closeCardActivity();
@@ -268,7 +275,7 @@ export class AppComponent implements OnInit {
     this.busy.set(true);
     this.error.set('');
     try {
-      const response = await firstValueFrom(this.http.post<TransferResponse>('/api/transfers', {
+      const response = await firstValueFrom(this.http.post<TransferResponse>(this.apiUrl('/api/transfers'), {
         fromAccountId: this.from(), toAccountId: this.to(), amount
       }, {headers: this.headers({'Idempotency-Key': crypto.randomUUID()})}));
       this.data.set(response.overview);
@@ -290,7 +297,7 @@ export class AppComponent implements OnInit {
     this.busyCard.set(card.id);
     this.error.set('');
     try {
-      const updated = await firstValueFrom(this.http.patch<BankCard>(`/api/cards/${card.id}`, changes, {headers: this.headers()}));
+      const updated = await firstValueFrom(this.http.patch<BankCard>(this.apiUrl(`/api/cards/${card.id}`), changes, {headers: this.headers()}));
       this.data.update(data => data ? {...data, cards: data.cards.map(item => item.id === card.id ? updated : item)} : data);
       return updated;
     } catch (err) {
@@ -323,7 +330,7 @@ export class AppComponent implements OnInit {
     this.profileSaving.set(true);
     this.error.set('');
     try {
-      const overview = await firstValueFrom(this.http.patch<Overview>('/api/profile', {
+      const overview = await firstValueFrom(this.http.patch<Overview>(this.apiUrl('/api/profile'), {
         name: this.profileName(), email: this.profileEmail(), language: this.profileLanguage(),
         notifications: {email: this.notifyEmail(), push: this.notifyPush()},
         securityPreview: {twoFactor: this.previewTwoFactor(), biometric: this.previewBiometric()}
@@ -340,7 +347,7 @@ export class AppComponent implements OnInit {
     this.busy.set(true);
     this.error.set('');
     try {
-      const response = await firstValueFrom(this.http.post<Overview>('/api/reset', {}, {headers: this.headers(), observe: 'response'}));
+      const response = await firstValueFrom(this.http.post<Overview>(this.apiUrl('/api/reset'), {}, {headers: this.headers(), observe: 'response'}));
       this.data.set(response.body);
       const id = response.headers.get('X-Demo-Session');
       if (id) {this.session = id; sessionStorage.setItem('nord-ledger-session', id);}

@@ -2,7 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {readFileSync, writeFileSync, copyFileSync, mkdirSync, readdirSync, statSync} from 'node:fs';
 import {join, relative, dirname} from 'node:path';
 
-execFileSync(process.execPath, ['node_modules/@angular/cli/bin/ng.js', 'build'], {stdio: 'inherit'});
+execFileSync(process.execPath, ['node_modules/@angular/cli/bin/ng.js', 'build', ...process.argv.slice(2)], {stdio: 'inherit'});
 
 const root = 'dist/angular/browser';
 // Publish the independently browsable design-system explorer alongside Angular.

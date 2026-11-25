@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="710" viewBox="0 0 1440 710" role="img" aria-labelledby="title desc">
+  <title id="title">Nord Ledger, digital banking demo and design system</title>
+  <desc id="desc">Deep forest-green branded illustration with a banking dashboard composition, balance, spending activity, and a fictional debit card. This is an illustrative graphic, not a screenshot.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0a2725"/><stop offset=".56" stop-color="#153d34"/><stop offset="1" stop-color="#0c2727"/></linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#205a47"/><stop offset=".52" stop-color="#123e35"/><stop offset="1" stop-color="#072621"/></linearGradient>
+    <linearGradient id="lime" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c8f998"/><stop offset="1" stop-color="#8ad2a7"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#ecf2eb"/></linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#95baa6" opacity=".16"/></pattern>
+    <filter id="shadow" x="-40%" y="-40%" width="200%" height="200%"><feDropShadow dx="0" dy="22" stdDeviation="28" flood-color="#001510" flood-opacity=".36"/></filter>
+    <clipPath id="clip"><rect width="1440" height="710" rx="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#clip)">
+    <rect width="1440" height="710" fill="url(#bg)"/>
+    <rect width="1440" height="710" fill="url(#dots)"/>
+    <circle cx="1140" cy="175" r="400" fill="none" stroke="#a5ddb9" stroke-opacity=".09" stroke-width="1"/>
+    <circle cx="1140" cy="175" r="310" fill="none" stroke="#a5ddb9" stroke-opacity=".09" stroke-width="1"/>
+    <circle cx="1140" cy="175" r="218" fill="none" stroke="#a5ddb9" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M0 592 Q420 510 850 650 T1440 560" fill="none" stroke="#a2e9b7" stroke-opacity=".12" stroke-width="2"/>
+
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <g transform="translate(78 62)">
+        <rect width="54" height="54" rx="16" fill="#c8f998"/>
+        <text x="13" y="39" font-size="41" font-weight="700" fill="#10332d">n</text>
+        <circle cx="42" cy="40" r="4" fill="#10332d"/>
+        <text x="72" y="24" font-size="25" font-weight="700" letter-spacing="-.5" fill="#f3faf1">nord ledger</text>
+        <text x="73" y="47" font-size="11" font-weight="600" letter-spacing="3.1" fill="#a9c6b3">DIGITAL BANKING / CONCEPT</text>
+      </g>
+      <rect x="78" y="181" width="157" height="32" rx="16" fill="#254e40" stroke="#4a8063" stroke-width="1"/>
+      <circle cx="97" cy="197" r="4" fill="#c8f998"/>
+      <text x="109" y="202" font-size="11" font-weight="700" letter-spacing="1.8" fill="#d1eac9">INTERACTIVE DEMO</text>
+
+      <text x="74" y="290" font-family="Georgia, serif" font-size="71" letter-spacing="-2" fill="#f4f6f2">Money, with</text>
+      <text x="74" y="368" font-family="Georgia, serif" font-size="73" font-style="italic" letter-spacing="-2" fill="#c8f998">clarity.</text>
+      <text x="78" y="422" font-size="20" fill="#bfd1c5">An expressive Nordic banking experience,</text>
+      <text x="78" y="452" font-size="20" fill="#bfd1c5">engineered from the interface to the API.</text>
+
+      <g transform="translate(78 500)">
+        <rect width="182" height="52" rx="16" fill="#c8f998"/>
+        <text x="26" y="33" font-size="16" font-weight="700" fill="#153a2d">Angular 21</text>
+        <rect x="196" width="152" height="52" rx="16" fill="none" stroke="#6c9380"/>
+        <text x="222" y="33" font-size="16" font-weight="600" fill="#e4eee7">REST API</text>
+        <rect x="362" width="176" height="52" rx="16" fill="none" stroke="#6c9380"/>
+        <text x="383" y="33" font-size="16" font-weight="600" fill="#e4eee7">Design system</text>
+      </g>
+      <text x="78" y="647" font-size="12" font-weight="600" letter-spacing="2.7" fill="#8db09d">DESIGNED &amp; ENGINEERED BY SANDEEP PARIYAR</text>
+    </g>
+
+    <g filter="url(#shadow)" font-family="Segoe UI, Arial, sans-serif">
+      <g transform="translate(778 109)">
+        <rect width="566" height="493" rx="25" fill="url(#glass)"/>
+        <rect width="566" height="57" rx="25" fill="#ffffff"/>
+        <rect y="40" width="566" height="35" fill="#ffffff"/>
+        <circle cx="28" cy="29" r="6" fill="#d3ddd6"/><circle cx="47" cy="29" r="6" fill="#d3ddd6"/><circle cx="66" cy="29" r="6" fill="#d3ddd6"/>
+        <text x="104" y="34" font-size="13" font-weight="700" fill="#17372e">nord ledger</text>
+        <text x="422" y="34" font-size="10" font-weight="700" letter-spacing="1.8" fill="#738c7b">DEMO / ONLINE</text>
+        <line x1="0" x2="566" y1="56" y2="56" stroke="#e1e7e0"/>
+        <text x="29" y="97" font-size="12" font-weight="700" letter-spacing="1.2" fill="#729180">GOOD MORNING, ALEX</text>
+        <text x="29" y="133" font-family="Georgia,serif" font-size="28" fill="#163b31">A little more in control.</text>
+        <g transform="translate(28 161)">
+          <rect width="305" height="142" rx="18" fill="#163d33"/>
+          <text x="20" y="32" font-size="11" font-weight="700" letter-spacing="1.5" fill="#a9c5ac">TOTAL BALANCE</text>
+          <text x="20" y="81" font-size="38" font-weight="650" fill="#f3f9f2">€45,540.45</text>
+          <rect x="20" y="103" width="131" height="25" rx="12" fill="#2c6244"/>
+          <text x="32" y="120" font-size="12" font-weight="600" fill="#c9f5b4">↗ +8.2% this month</text>
+          <path d="M203 103 C223 100 226 120 245 89 S275 76 290 43" fill="none" stroke="#c8f998" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(345 161)">
+          <rect width="193" height="142" rx="18" fill="#e9f1e8"/>
+          <text x="17" y="29" font-size="11" font-weight="700" letter-spacing="1.2" fill="#537b67">SPENDING</text>
+          <text x="17" y="62" font-size="24" font-weight="700" fill="#163b31">€2,538</text>
+          <path d="M20 109 L20 119 L176 119" fill="none" stroke="#d3ded3"/>
+          <rect x="24" y="92" width="18" height="27" rx="4" fill="#9dc1a6"/>
+          <rect x="56" y="80" width="18" height="39" rx="4" fill="#9dc1a6"/>
+          <rect x="88" y="86" width="18" height="33" rx="4" fill="#9dc1a6"/>
+          <rect x="120" y="67" width="18" height="52" rx="4" fill="#215b44"/>
+          <rect x="152" y="89" width="18" height="30" rx="4" fill="#9dc1a6"/>
+        </g>
+        <g transform="translate(28 325)">
+          <text x="0" y="0" font-size="15" font-weight="700" fill="#163b31">Recent activity</text>
+          <text x="403" y="0" font-size="11" font-weight="700" fill="#517c63">VIEW ALL</text>
+          <circle cx="18" cy="45" r="18" fill="#e0ece2"/><text x="11" y="51" font-size="16" fill="#285b43">◈</text>
+          <text x="49" y="41" font-size="13" font-weight="650" fill="#244438">Koru Market</text><text x="49" y="57" font-size="11" fill="#8c9c90">Groceries · Today</text>
+          <text x="447" y="48" font-size="14" font-weight="700" fill="#214136">−€86.40</text>
+          <line x1="0" x2="506" y1="74" y2="74" stroke="#e0e6de"/>
+          <circle cx="18" cy="105" r="18" fill="#e0ece2"/><text x="11" y="110" font-size="16" fill="#285b43">✦</text>
+          <text x="49" y="100" font-size="13" font-weight="650" fill="#244438">Northstar Studio</text><text x="49" y="116" font-size="11" fill="#8c9c90">Salary · Yesterday</text>
+          <text x="436" y="107" font-size="14" font-weight="700" fill="#3d9268">+€4,850</text>
+        </g>
+      </g>
+      <g transform="translate(1086 444) rotate(-9)">
+        <rect width="273" height="168" rx="18" fill="url(#card)" stroke="#488b6a" stroke-opacity=".5"/>
+        <path d="M0 112 Q120 30 273 95" fill="none" stroke="#84cba1" stroke-opacity=".32" stroke-width="22"/>
+        <path d="M0 125 Q120 42 273 107" fill="none" stroke="#c8f998" stroke-opacity=".3" stroke-width="1.5"/>
+        <text x="21" y="31" font-size="16" font-weight="700" fill="#e2f4e5">nord ledger</text>
+        <circle cx="238" cy="24" r="10" fill="#bfe987" opacity=".8"/><circle cx="249" cy="24" r="10" fill="#8ed4a0" opacity=".65"/>
+        <rect x="22" y="59" width="34" height="25" rx="5" fill="#d0d4aa"/>
+        <path d="M36 59 V84 M22 71 H56" stroke="#8a9673"/>
+        <text x="21" y="113" font-size="14" letter-spacing="2.1" fill="#f6fbf4">••••  ••••  ••••  4829</text>
+        <text x="21" y="142" font-size="8" font-weight="700" letter-spacing="1.2" fill="#b4d0ba">CARD HOLDER</text><text x="21" y="156" font-size="11" font-weight="700" fill="#fff">ALEX MORGAN</text>
+        <text x="228" y="156" font-size="12" font-weight="800" fill="#fff">DEMO</text>
+      </g>
+    </g>
+    <text x="1339" y="671" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="end" fill="#aac2b4" opacity=".75">ILLUSTRATIVE PRODUCT COMPOSITION · NO REAL MONEY</text>
+  </g>
+</svg>

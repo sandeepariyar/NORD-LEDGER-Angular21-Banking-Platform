@@ -19,6 +19,22 @@ const headers = {
   'Cache-Control': 'no-store',
   'X-Content-Type-Options': 'nosniff'
 };
+const githubPagesOrigin = 'https://sandeepariyar.github.io';
+
+// The public GitHub Pages build talks to this demo API across origins. Limit
+// browser CORS access to our published Pages origin, and expose the temporary
+// session header the Angular frontend needs to retain its sandbox state.
+function withDemoCors(request, response) {
+  if (request.headers.get('Origin') !== githubPagesOrigin) return response;
+  const responseHeaders = new Headers(response.headers);
+  responseHeaders.set('Access-Control-Allow-Origin', githubPagesOrigin);
+  responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+  responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, X-Demo-Session, Idempotency-Key');
+  responseHeaders.set('Access-Control-Expose-Headers', 'X-Demo-Session');
+  responseHeaders.set('Access-Control-Max-Age', '600');
+  responseHeaders.set('Vary', 'Origin');
+  return new Response(response.body, {status: response.status, statusText: response.statusText, headers: responseHeaders});
+}
 
 function json(body, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(body), {status, headers: {...headers, ...extraHeaders}});
@@ -258,9 +274,15 @@ export default {
   async fetch(request) {
     const url = new URL(request.url);
     if (url.pathname.startsWith('/api/')) {
-      try {return await api(request, url);} catch {return json({error: 'Unexpected demo API error.'}, 500);}
+      if (request.method === 'OPTIONS') {
+        if (request.headers.get('Origin') !== githubPagesOrigin) return new Response(null, {status: 403});
+        return withDemoCors(request, new Response(null, {status: 204}));
+      }
+      try {return withDemoCors(request, await api(request, url));}
+      catch {return withDemoCors(request, json({error: 'Unexpected demo API error.'}, 500));}
     }
     if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('Method not allowed', {status: 405});
+    if (url.pathname === '/design-system') return Response.redirect(`${url.origin}/design-system/`, 308);
     const path = url.pathname === '/' ? '/index.html' : ['/design-system', '/design-system/'].includes(url.pathname) ? '/design-system/index.html' : url.pathname;
     const asset = ASSETS[path] || (path.indexOf('.') === -1 ? ASSETS['/index.html'] : null);
     if (!asset) return new Response('Not found', {status: 404});

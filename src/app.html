@@ -1,0 +1,258 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <button class="brand" (click)="navigate('overview')" aria-label="Nord Ledger home">
+      <span class="brand-symbol">n<span>·</span></span>
+      <span class="brand-copy"><strong>nord<span>ledger</span></strong><small>PERSONAL BANKING</small></span>
+    </button>
+
+    <div class="side-section-label">WORKSPACE</div>
+    <nav class="navigation" aria-label="Primary navigation">
+      @for (item of pages; track item.id) {
+        <button class="nav-link" [class.active]="page() === item.id" [attr.aria-current]="page() === item.id ? 'page' : null" (click)="navigate(item.id)">
+          <span class="nav-glyph">{{ item.icon }}</span><span>{{ item.label }}</span>
+          @if (page() === item.id) {<span class="nav-active-pill"></span>}
+        </button>
+      }
+    </nav>
+
+    <div class="side-bottom">
+      <div class="safe-note"><span class="safe-icon">✳</span><strong>Sandbox mode</strong><p>Explore freely. Every balance and transaction is fictional.</p></div>
+      <button class="reset-button" (click)="resetDemo()" [disabled]="busy()"><span>↻</span> Reset demo data</button>
+      <button class="side-profile" (click)="openProfile()" aria-label="Open profile and settings"><span class="avatar">{{ data()?.customer?.initials || 'AM' }}</span><span><strong>{{ data()?.customer?.name || 'Alex Morgan' }}</strong><small>Profile &amp; settings</small></span><span class="profile-chevron">⌄</span></button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <div class="breadcrumb"><span>NORD LEDGER</span><span class="breadcrumb-slash">/</span><strong>{{ page() === 'cards' ? 'My cards' : (page() | titlecase) }}</strong></div>
+      <div class="topbar-actions"><span class="api-pill"><i></i> REST API CONNECTED</span><span class="topbar-divider"></span><button class="top-avatar" (click)="openProfile()" aria-label="Open profile and settings" title="Profile & settings">{{ data()?.customer?.initials || 'AM' }}</button></div>
+    </header>
+
+    @if (loading()) {
+      <div class="loading-view"><div class="loading-mark">n<span>·</span></div><p>Preparing your demo workspace...</p></div>
+    } @else if (!data()) {
+      <div class="loading-view"><div class="error-face">!</div><h2>We couldn't open your workspace</h2><p>{{ error() }}</p><button class="primary-button" (click)="load()">Try again</button></div>
+    } @else if (data(); as bank) {
+      <main class="content">
+        @if (error()) {<div class="inline-error" role="alert"><span>!</span>{{ error() }}<button (click)="error.set('')" aria-label="Dismiss error">×</button></div>}
+
+        @if (page() === 'overview') {
+          <div class="page-heading">
+            <div><div class="eyebrow">{{ nowLabel | uppercase }} <span class="separator-dot">·</span> YOUR FINANCIAL SPACE</div><h1>Good to see you, <em>{{ bank.customer.firstName }}.</em></h1><p>Here's what's happening with your money today.</p></div>
+            <button class="primary-button transfer-action" (click)="openTransfer()"><span>+</span> New transfer</button>
+          </div>
+
+          <section class="highlights-grid" aria-label="Financial highlights">
+            <div class="balance-hero">
+              <div class="hero-glow hero-glow-one"></div><div class="hero-glow hero-glow-two"></div>
+              <div class="hero-top"><span>TOTAL BALANCE</span><span class="hero-asterisk">✳</span></div>
+              <div class="hero-balance">{{ money(bank.totalBalanceCents) }}</div>
+              <div class="hero-sub"><span class="hero-trend">↗ &nbsp; +8.2%</span> <span>vs. previous month <span class="subtle-label">· illustrative</span></span></div>
+              <div class="hero-bottom"><span>Across {{ bank.accounts.length }} accounts</span><button (click)="navigate('accounts')">View accounts</button></div>
+              <svg class="hero-line" viewBox="0 0 640 130" preserveAspectRatio="none" aria-hidden="true"><path d="M0,105 C45,86 70,102 120,83 S190,71 222,90 S295,126 340,73 S392,62 422,42 S480,67 530,30 S587,44 640,5" fill="none" stroke="rgba(185,246,128,.24)" stroke-width="2"/></svg>
+            </div>
+            <div class="spending-hero">
+              <div class="section-topline"><span>MONTHLY SPENDING</span><span class="small-month">{{ bank.insights.month }}</span></div>
+              <div class="spending-body"><div class="donut" [style.background]="donutStyle()"><div class="donut-core"><small>YOU'VE SPENT</small><strong>{{ money(bank.insights.monthlySpendCents) }}</strong><span>This month</span></div></div><div class="spending-summary"><div class="summary-line"><span>Monthly budget</span><strong>{{ money(bank.insights.budgetCents) }}</strong></div><div class="summary-line"><span>Remaining</span><strong class="positive">{{ money(bank.insights.budgetCents - bank.insights.monthlySpendCents) }}</strong></div><div class="spending-progress"><span [style.width.%]="percent(bank.insights.monthlySpendCents, bank.insights.budgetCents)"></span></div><span class="spending-foot">{{ percent(bank.insights.monthlySpendCents, bank.insights.budgetCents) }}% of monthly budget used</span></div></div>
+            </div>
+          </section>
+
+          <div class="dashboard-grid">
+            <div class="dashboard-main">
+              <section class="panel accounts-panel"><div class="panel-heading"><div><span class="section-kicker">YOUR MONEY</span><h2>Accounts <span class="number-tag">{{ bank.accounts.length }}</span></h2></div><button class="text-link" (click)="navigate('accounts')">All accounts</button></div>
+                <div class="account-list">
+                  @for (account of bank.accounts; track account.id) {
+                    <button class="account-row" (click)="navigate('accounts'); selectedAccount.set(account.id)">
+                      <span class="account-icon" [ngClass]="account.color">{{ account.type === 'Current' ? '◈' : account.type === 'Savings' ? '✳' : '✦' }}</span>
+                      <span class="account-details"><strong>{{ account.name }}</strong><small>{{ account.iban }}</small></span><span class="account-balance">{{ money(account.balanceCents) }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+
+              <section class="panel transactions-panel"><div class="panel-heading"><div><span class="section-kicker">MONEY IN MOTION</span><h2>Recent activity</h2></div><button class="text-link" (click)="navigate('accounts')">All transactions</button></div>
+                <div class="transaction-list">
+                  @for (tx of bank.transactions.slice(0, 5); track tx.id) {
+                    <div class="transaction-row"><span class="transaction-icon" [class.tx-income]="tx.amountCents > 0">{{ txIcon(tx.icon) }}</span><span class="transaction-details"><strong>{{ tx.name }}</strong><small>{{ tx.detail }} <span>·</span> {{ shortDate(tx.date) }}</small></span><span class="transaction-amount" [class.positive]="tx.amountCents > 0">{{ signedMoney(tx.amountCents) }}</span></div>
+                  }
+                </div>
+              </section>
+            </div>
+
+            <div class="dashboard-side">
+              <section class="panel quick-transfer"><div class="panel-heading"><div><span class="section-kicker">MOVE MONEY</span><h2>Quick transfer</h2></div><span class="quick-icon">✳</span></div>
+                <div class="field-label">FROM ACCOUNT</div><div class="select-wrap"><select [value]="from()" (change)="onFromChange($event)" aria-label="From account">@for (account of bank.accounts; track account.id) {<option [value]="account.id" [selected]="account.id === from()">{{ account.name }}</option>}</select><span>⌄</span></div>
+                <div class="field-label">TO ACCOUNT</div><div class="select-wrap"><select [value]="to()" (change)="onToChange($event)" aria-label="To account">@for (account of bank.accounts; track account.id) {<option [value]="account.id" [selected]="account.id === to()">{{ account.name }}</option>}</select><span>⌄</span></div>
+                <div class="field-label">AMOUNT</div><div class="amount-field"><span>€</span><input aria-label="Transfer amount" inputmode="decimal" [value]="amount()" (input)="onAmountInput($event)" placeholder="0.00"/></div>
+                <button class="dark-button full-width" (click)="submitTransfer()" [disabled]="busy()">{{ busy() ? 'Processing...' : 'Transfer money' }}</button><div class="transfer-foot">✳ &nbsp; Between your demo accounts only</div>
+              </section>
+              <section class="insight-callout"><span class="callout-symbol">✳</span><span class="section-kicker">LITTLE THINGS ADD UP</span><h3>You're spending <em>9% less</em> this month.</h3><p>Your smart money habit is looking good. Keep it going!</p><button (click)="navigate('insights')">Explore insights</button></section>
+            </div>
+          </div>
+        } @else if (page() === 'accounts') {
+          <div class="page-heading"><div><div class="eyebrow">YOUR ACCOUNTS <span class="separator-dot">·</span> LIVE DEMO DATA</div><h1>All your money. <em>One view.</em></h1><p>Manage your accounts and explore every movement.</p></div><button class="primary-button" (click)="openTransfer()"><span>+</span> New transfer</button></div>
+          <div class="account-cards-grid">
+            @for (account of bank.accounts; track account.id) {
+              <button class="large-account-card" [class.chosen]="selectedAccount() === account.id" (click)="selectedAccount.set(account.id)"><span class="large-account-icon" [ngClass]="account.color">{{ account.type === 'Current' ? '◈' : account.type === 'Savings' ? '✳' : '✦' }}</span><span class="account-type">{{ account.type | uppercase }} ACCOUNT</span><strong>{{ account.name }}</strong><span class="large-account-money">{{ money(account.balanceCents) }}</span><small>{{ account.iban }}</small></button>
+            }
+          </div>
+          <section class="panel large-transactions"><div class="panel-heading"><div><span class="section-kicker">ACTIVITY LOG</span><h2>Transactions</h2></div><button class="outline-button" (click)="exportCsv()">↓ &nbsp; Export CSV</button></div>
+            <div class="filters-row"><div class="search-box"><span>⌕</span><input placeholder="Search transactions..." aria-label="Search transactions" [value]="search()" (input)="onSearchInput($event)" /></div><div class="select-wrap filter-select"><select [value]="selectedAccount()" (change)="onAccountChange($event)" aria-label="Filter by account"><option value="all" [selected]="selectedAccount() === 'all'">All accounts</option>@for (account of bank.accounts; track account.id) {<option [value]="account.id" [selected]="account.id === selectedAccount()">{{ account.name }}</option>}</select><span>⌄</span></div></div>
+            <div class="transaction-list extended">@for (tx of filteredTransactions(); track tx.id) {<div class="transaction-row"><span class="transaction-icon" [class.tx-income]="tx.amountCents > 0">{{ txIcon(tx.icon) }}</span><span class="transaction-details"><strong>{{ tx.name }}</strong><small>{{ tx.detail }} · {{ accountName(tx.accountId) }}</small></span><span class="transaction-date">{{ shortDate(tx.date) }}</span><span class="transaction-amount" [class.positive]="tx.amountCents > 0">{{ signedMoney(tx.amountCents) }}</span></div>} @empty {<div class="empty-state">No transactions match your search.</div>}</div>
+          </section>
+        } @else if (page() === 'payments') {
+          <div class="page-heading"><div><div class="eyebrow">PAYMENTS <span class="separator-dot">·</span> INTERNAL TRANSFERS</div><h1>Move money <em>beautifully.</em></h1><p>Send euros between your fictional Nord Ledger accounts.</p></div></div>
+          <div class="payments-layout"><section class="panel payment-main"><div class="panel-heading"><div><span class="section-kicker">MAKE A TRANSFER</span><h2>Where should it go?</h2></div><span class="payments-decoration">⇄</span></div><div class="transfer-intro">Funds move instantly between demo accounts. No external payments or real financial services are connected.</div>
+              <div class="field-label">FROM ACCOUNT</div><div class="select-wrap"><select [value]="from()" (change)="onFromChange($event)">@for (account of bank.accounts; track account.id) {<option [value]="account.id" [selected]="account.id === from()">{{ account.name }} · {{ money(account.balanceCents) }}</option>}</select><span>⌄</span></div>
+              <div class="switch-line"><span></span><span class="switch-symbol">↓</span><span></span></div>
+              <div class="field-label">TO ACCOUNT</div><div class="select-wrap"><select [value]="to()" (change)="onToChange($event)">@for (account of bank.accounts; track account.id) {<option [value]="account.id" [selected]="account.id === to()">{{ account.name }}</option>}</select><span>⌄</span></div>
+              <div class="field-label">TRANSFER AMOUNT</div><div class="amount-field large-amount"><span>€</span><input inputmode="decimal" aria-label="Transfer amount" [value]="amount()" (input)="onAmountInput($event)" /></div>
+              <button class="dark-button full-width" (click)="submitTransfer()" [disabled]="busy()">{{ busy() ? 'Processing transfer...' : 'Confirm demo transfer' }}</button>
+            </section><aside class="payment-side"><div class="payment-side-icon">✳</div><span class="section-kicker">BUILT TO FEEL EFFORTLESS</span><h2>Every move, accounted for.</h2><p>The demo API validates available funds, moves balances atomically within each session, and records both sides of the transfer.</p><div class="payment-feature">✓ Real REST request</div><div class="payment-feature">✓ Duplicate-transfer protection</div><div class="payment-feature">✓ No real payments</div></aside></div>
+        } @else if (page() === 'insights') {
+          <div class="page-heading"><div><div class="eyebrow">FINANCIAL INSIGHTS <span class="separator-dot">·</span> {{ bank.insights.month | uppercase }}</div><h1>Know your <em>money better.</em></h1><p>A clearer picture of where every euro goes.</p></div></div>
+          <div class="insight-stat-grid"><div class="mini-stat"><span>MONTHLY INCOME</span><strong>{{ money(bank.insights.monthlyIncomeCents) }}</strong><small>↗ +12.4% illustrative</small></div><div class="mini-stat"><span>MONTHLY SPENDING</span><strong>{{ money(bank.insights.monthlySpendCents) }}</strong><small class="positive">↘ 9.2% vs previous month</small></div><div class="mini-stat"><span>BUDGET REMAINING</span><strong>{{ money(bank.insights.budgetCents - bank.insights.monthlySpendCents) }}</strong><small>On track this month</small></div></div>
+          <div class="insights-grid"><section class="panel category-panel"><div class="panel-heading"><div><span class="section-kicker">THE BREAKDOWN</span><h2>Spending by category</h2></div></div><div class="big-donut-row"><div class="donut big-donut" [style.background]="donutStyle()"><div class="donut-core"><small>TOTAL SPENT</small><strong>{{ money(bank.insights.monthlySpendCents) }}</strong></div></div><div class="categories-list">@for (category of bank.insights.categories; track category.name) {<div class="category-row"><i [style.background]="category.color"></i><span>{{ category.name }}</span><strong>{{ money(category.amountCents) }}</strong></div>}</div></div></section>
+            <section class="panel trend-panel"><div class="panel-heading"><div><span class="section-kicker">THIS MONTH</span><h2>Weekly spending</h2></div></div><div class="bar-chart">@for (value of bank.insights.weeklySpendCents; track $index) {<div class="bar-column"><span class="bar-value">{{ money(value) }}</span><div class="bar-track"><div [style.height.%]="chartHeight(value)"></div></div><span class="bar-label">W{{ $index + 1 }}</span></div>}</div><p class="chart-disclaimer">Illustrative weekly distribution based on fictional demo records.</p></section></div>
+        } @else if (page() === 'cards') {
+          <div class="page-heading"><div><div class="eyebrow">CARD CONTROL <span class="separator-dot">·</span> YOUR CARD COLLECTION</div><h1>Cards with <em>character.</em></h1><p>Choose, personalize and manage your fictional cards.</p></div><button class="primary-button" (click)="openCardCatalog()">Explore card choices</button></div>
+          <div class="card-collection-intro"><div><span class="section-kicker">THE NORD LEDGER COLLECTION</span><h2>A card for every way you move.</h2><p>Explore debit, digital, premium and credit concepts. Compare features before adding a new demo card.</p></div><button class="card-collection-link" (click)="openCardCatalog()">Compare five card options</button></div>
+          <div class="cards-grid">@for (card of bank.cards; track card.id) {
+            <section class="card-management">
+              <div class="bank-card" [ngClass]="'theme-' + card.designId" [class.bank-card-frozen]="card.frozen">
+                <div class="bank-card-top"><span>nord<span>ledger</span></span><span class="card-wave">◉</span></div><div class="card-chip">▦</div>
+                <div class="card-digits">•••• &nbsp; •••• &nbsp; •••• &nbsp; {{ card.last4 }}</div>
+                <div class="bank-card-bottom"><span><small>CARD HOLDER</small>{{ card.holder }}</span><span><small>EXPIRES</small>{{ card.expires }}</span><strong>VISA</strong></div>
+                @if (card.frozen) {<span class="frozen-overlay">FROZEN</span>}
+              </div>
+              <div class="card-management-footer"><div><strong>{{ card.name }}</strong><small>•••• {{ card.last4 }} · {{ card.frozen ? 'Temporarily frozen' : 'Active demo card' }}</small><small>{{ accountName(card.accountId) }} · {{ card.removable ? 'Added in this session' : 'Original card' }}</small></div><div class="card-footer-actions"><button class="outline-button" (click)="openCardActivity(card)">Activity</button><button class="outline-button" (click)="openDesigner(card)">Personalize</button><button class="outline-button" (click)="toggleCard(card)" [disabled]="busyCard() === card.id">{{ busyCard() === card.id ? 'Updating...' : card.frozen ? 'Unfreeze' : 'Freeze' }}</button></div></div>
+              <div class="card-controls-panel">
+                <div class="card-controls-heading"><strong>Payment controls</strong><span>DEMO SETTINGS</span></div>
+                <div class="control-switches">
+                  <button class="control-switch" [class.selected]="card.controls.online" [attr.aria-pressed]="card.controls.online" (click)="toggleCardControl(card, 'online')" [disabled]="busyCard() === card.id"><span>Online payments</span><span class="switch-track"><i></i></span></button>
+                  <button class="control-switch" [class.selected]="card.controls.contactless" [attr.aria-pressed]="card.controls.contactless" (click)="toggleCardControl(card, 'contactless')" [disabled]="busyCard() === card.id"><span>Contactless</span><span class="switch-track"><i></i></span></button>
+                  <button class="control-switch" [class.selected]="card.controls.international" [attr.aria-pressed]="card.controls.international" (click)="toggleCardControl(card, 'international')" [disabled]="busyCard() === card.id"><span>International</span><span class="switch-track"><i></i></span></button>
+                </div>
+                <div class="card-limit-row"><label [attr.for]="'limit-' + card.id">Daily spending limit</label><div class="select-wrap"><select [id]="'limit-' + card.id" [value]="card.dailyLimitCents" (change)="setCardLimit(card, $event)" [disabled]="busyCard() === card.id"><option value="100000" [selected]="card.dailyLimitCents === 100000">€1,000</option><option value="150000" [selected]="card.dailyLimitCents === 150000">€1,500</option><option value="300000" [selected]="card.dailyLimitCents === 300000">€3,000</option><option value="500000" [selected]="card.dailyLimitCents === 500000">€5,000</option></select><span>⌄</span></div></div>
+              </div>
+              @if (card.removable) {<div class="card-extra-actions"><span>Issued for this temporary sandbox only</span><button (click)="askCloseCard(card)">Close demo card</button></div>}
+            </section>
+          }</div>
+          <div class="card-notice"><strong>✳ &nbsp; Your safety comes first.</strong><span>These are display-only demo cards. Card controls update fictional session data and cannot affect real payments.</span></div>
+        }
+
+        <footer class="footer"><span>© 2026 NORD LEDGER CONCEPT <span class="footer-dot">·</span> DESIGN + ENGINEERING DEMO</span><span>Angular 21 <i>•</i> TypeScript <i>•</i> REST API <i>•</i> <a class="footer-design-link" href="/design-system">Design system</a></span></footer>
+      </main>
+    }
+  </div>
+</div>
+
+@if (transferOpen() && data(); as bank) {
+  <div class="modal-backdrop" (click)="closeTransfer()" role="presentation"><section class="transfer-modal" role="dialog" aria-modal="true" aria-labelledby="transfer-title" (click)="$event.stopPropagation()"><div class="modal-top"><div><span class="section-kicker">TRANSFER MONEY</span><h2 id="transfer-title">Move your money.</h2></div><button class="modal-close" (click)="closeTransfer()" aria-label="Close transfer">×</button></div><p class="modal-description">Between demo accounts only. No real money will move.</p>
+    @if (error()) {<div class="inline-error">{{ error() }}</div>}
+    <div class="field-label">FROM ACCOUNT</div><div class="select-wrap"><select [value]="from()" (change)="onFromChange($event)">@for (account of bank.accounts; track account.id) {<option [value]="account.id" [selected]="account.id === from()">{{ account.name }} · {{ money(account.balanceCents) }}</option>}</select><span>⌄</span></div>
+    <div class="field-label">TO ACCOUNT</div><div class="select-wrap"><select [value]="to()" (change)="onToChange($event)">@for (account of bank.accounts; track account.id) {<option [value]="account.id" [selected]="account.id === to()">{{ account.name }}</option>}</select><span>⌄</span></div>
+    <div class="field-label">AMOUNT</div><div class="amount-field large-amount"><span>€</span><input inputmode="decimal" [value]="amount()" (input)="onAmountInput($event)" aria-label="Transfer amount" /></div>
+    <button class="dark-button full-width" (click)="submitTransfer()" [disabled]="busy()">{{ busy() ? 'Processing...' : 'Confirm transfer' }}</button><div class="modal-safe">✳ Sandbox-only transfer</div>
+  </section></div>
+}
+
+@if (profileOpen() && data(); as bank) {
+  <div class="drawer-backdrop" (click)="closeProfile()" role="presentation">
+    <aside class="profile-drawer" role="dialog" aria-modal="true" aria-labelledby="profile-title" (click)="$event.stopPropagation()">
+      <div class="drawer-header"><div><span class="section-kicker">CUSTOMER SPACE</span><h2 id="profile-title">Profile &amp; settings</h2></div><button class="modal-close" (click)="closeProfile()" aria-label="Close profile">×</button></div>
+      <div class="profile-identity"><span class="identity-avatar">{{ bank.customer.initials }}</span><div><strong>{{ bank.customer.name }}</strong><small>Fictional customer · Member since {{ bank.customer.memberSince }}</small></div><span class="identity-sparkle">✳</span></div>
+      <div class="profile-tabs" role="tablist" aria-label="Profile settings">
+        <button role="tab" [attr.aria-selected]="profileTab() === 'personal'" [class.active]="profileTab() === 'personal'" (click)="profileTab.set('personal')">Personal</button>
+        <button role="tab" [attr.aria-selected]="profileTab() === 'preferences'" [class.active]="profileTab() === 'preferences'" (click)="profileTab.set('preferences')">Preferences</button>
+        <button role="tab" [attr.aria-selected]="profileTab() === 'security'" [class.active]="profileTab() === 'security'" (click)="profileTab.set('security')">Security</button>
+      </div>
+      <div class="profile-section">
+        @if (profileTab() === 'personal') {
+          <div class="setting-title">Your information</div><p class="setting-description">Edit this fictional customer profile. Please don't enter real personal information.</p>
+          <label class="profile-input-label" for="profile-name">Display name</label><input id="profile-name" class="profile-input" [value]="profileName()" (input)="onProfileName($event)" maxlength="70"/>
+          <label class="profile-input-label" for="profile-email">Demo email</label><input id="profile-email" class="profile-input" inputmode="email" [value]="profileEmail()" (input)="onProfileEmail($event)" maxlength="120"/>
+          <div class="read-only-field"><span>Location</span><strong>{{ bank.customer.city }} <small>DEMO</small></strong></div>
+          <div class="read-only-field"><span>Customer since</span><strong>{{ bank.customer.memberSince }}</strong></div>
+        } @else if (profileTab() === 'preferences') {
+          <div class="setting-title">Make it yours</div><p class="setting-description">Preferences update the demo API, without contacting any real notification service.</p>
+          <label class="profile-input-label" for="profile-language">Preferred language</label><div class="select-wrap"><select id="profile-language" [value]="profileLanguage()" (change)="onProfileLanguage($event)"><option value="English" [selected]="profileLanguage() === 'English'">English</option><option value="Finnish" [selected]="profileLanguage() === 'Finnish'">Suomi</option><option value="Swedish" [selected]="profileLanguage() === 'Swedish'">Svenska</option></select><span>⌄</span></div>
+          <div class="settings-group"><button class="setting-toggle" [attr.aria-pressed]="notifyEmail()" (click)="notifyEmail.set(!notifyEmail())"><span><strong>Email notifications</strong><small>Demo activity alerts</small></span><span class="switch-track" [class.on]="notifyEmail()"><i></i></span></button>
+          <button class="setting-toggle" [attr.aria-pressed]="notifyPush()" (click)="notifyPush.set(!notifyPush())"><span><strong>Push notifications</strong><small>Demo device alerts</small></span><span class="switch-track" [class.on]="notifyPush()"><i></i></span></button></div>
+        } @else {
+          <div class="setting-title">Security preferences</div><p class="setting-description">Interactive security settings preview. These toggles do not enable real authentication.</p>
+          <div class="security-note"><span>✳</span><p><strong>Prototype only</strong> No password, biometric information, or real identity data is collected or verified.</p></div>
+          <div class="settings-group"><button class="setting-toggle" [attr.aria-pressed]="previewTwoFactor()" (click)="previewTwoFactor.set(!previewTwoFactor())"><span><strong>Two-step verification</strong><small>Interface preview state</small></span><span class="switch-track" [class.on]="previewTwoFactor()"><i></i></span></button>
+          <button class="setting-toggle" [attr.aria-pressed]="previewBiometric()" (click)="previewBiometric.set(!previewBiometric())"><span><strong>Biometric sign-in</strong><small>Interface preview state</small></span><span class="switch-track" [class.on]="previewBiometric()"><i></i></span></button></div>
+          <div class="read-only-field"><span>Current environment</span><strong>Private demo sandbox</strong></div>
+        }
+      </div>
+      <div class="drawer-footer">@if (error()) {<div class="inline-error" role="alert">{{ error() }}</div>}<button class="dark-button full-width" (click)="saveProfile()" [disabled]="profileSaving()">{{ profileSaving() ? 'Saving...' : 'Save demo preferences' }}</button><p>Changes are temporary and may reset when the demo server restarts.</p></div>
+    </aside>
+  </div>
+}
+
+@if (activeDesignCard(); as card) {
+  <div class="modal-backdrop studio-backdrop" (click)="closeDesigner()" role="presentation">
+    <section class="studio-dialog" role="dialog" aria-modal="true" aria-labelledby="studio-title" (click)="$event.stopPropagation()">
+      <div class="studio-header"><div><span class="section-kicker">NORD LEDGER / CARD DESIGN</span><h2 id="studio-title">Make it <em>yours.</em></h2><p>Choose a signature finish for your fictional {{ card.name.toLowerCase() }}.</p></div><button class="modal-close" (click)="closeDesigner()" aria-label="Close card designer">×</button></div>
+      <div class="studio-layout">
+        <div class="studio-preview-column"><div class="studio-stage" (mousemove)="previewMove($event)" (mouseleave)="previewTilt.set({x: 0, y: 0})"><div class="studio-rotator" [style.transform]="previewTransform()">
+          <div class="bank-card studio-face studio-front" [ngClass]="'theme-' + chosenTheme()"><div class="bank-card-top"><span>nord<span>ledger</span></span><span class="card-wave">◉</span></div><div class="card-chip">▦</div><div class="card-digits">•••• &nbsp; •••• &nbsp; •••• &nbsp; {{ card.last4 }}</div><div class="bank-card-bottom"><span><small>CARD HOLDER</small>{{ card.holder }}</span><span><small>EXPIRES</small>{{ card.expires }}</span><strong>VISA</strong></div></div>
+          <div class="bank-card studio-face studio-back" [ngClass]="'theme-' + chosenTheme()"><div class="magnetic-stripe"></div><div class="studio-back-content"><span>AUTHORISED SIGNATURE</span><div>DEMO CARD · NO CARD DATA</div><small>Security details are intentionally hidden.</small></div><strong class="back-brand">nordledger</strong></div>
+        </div></div><div class="studio-view-controls"><span>MOVE TO TILT</span><button class="outline-button" (click)="showCardBack.set(!showCardBack())">{{ showCardBack() ? 'View front' : 'View back' }}</button></div><p class="studio-preview-note">Design changes affect this demo card only.</p></div>
+        <div class="studio-settings"><span class="section-kicker">CHOOSE A FINISH</span><h3>Three ways to be you.</h3><div class="theme-options">@for (design of designs; track design.id) {<button class="theme-option" [class.active]="chosenTheme() === design.id" [attr.aria-pressed]="chosenTheme() === design.id" (click)="chosenTheme.set(design.id); showCardBack.set(false)"><span class="theme-swatch" [ngClass]="'theme-' + design.id"></span><span><strong>{{ design.label }}</strong><small>{{ design.description }}</small></span><span class="theme-check">{{ chosenTheme() === design.id ? '✓' : '' }}</span></button>}</div><div class="studio-detail"><span>✳</span><p>Thoughtful, tactile design. The card number and security code stay concealed throughout.</p></div>@if (error()) {<div class="inline-error" role="alert">{{ error() }}</div>}<button class="dark-button full-width" (click)="saveCardDesign()" [disabled]="busyCard() !== null">{{ busyCard() ? 'Applying...' : 'Apply this design' }}</button></div>
+      </div>
+    </section>
+  </div>
+}
+@if (cardCatalogOpen() && data(); as bank) {
+  <div class="modal-backdrop catalog-backdrop" (click)="closeCardCatalog()" role="presentation">
+    <section class="catalog-dialog" role="dialog" aria-modal="true" aria-labelledby="catalog-title" (click)="$event.stopPropagation()">
+      <header class="catalog-header"><div><span class="section-kicker">NORD LEDGER / CARD COLLECTION</span><h2 id="catalog-title">Find your <em>fit.</em></h2><p>Explore fictional banking products, then craft a card that feels like yours.</p></div><button class="modal-close" (click)="closeCardCatalog()" aria-label="Close card collection">×</button></header>
+      <div class="catalog-steps" aria-label="Card selection progress"><span [class.active]="catalogStep() === 'compare'">01 &nbsp; Compare</span><span [class.active]="catalogStep() === 'customize'">02 &nbsp; Personalize</span><span [class.active]="catalogStep() === 'review'">03 &nbsp; Review</span></div>
+      @if (catalogStep() === 'compare') {
+        <div class="catalog-compare-head"><div><h3>One collection. Five possibilities.</h3><p>Two cards are already in your wallet. Add one of the other demo concepts.</p></div><span>NO REAL CARDS ISSUED</span></div>
+        @if (cardCatalogLoading()) {<div class="catalog-loading">Loading card collection...</div>}
+        <div class="product-grid">@for (product of cardProducts(); track product.id) {
+          <article class="product-choice" [class.product-in-wallet]="hasCardProduct(product.id)">
+            <div class="product-choice-head"><span>{{ product.category | uppercase }}</span><span class="product-format">{{ product.format }}</span></div>
+            <div class="product-mini-card" [ngClass]="'theme-' + product.designId"><span>nord<span>ledger</span></span><div>◉</div><small>•••• {{ product.last4 }}</small></div>
+            <h4>{{ product.name }}</h4><p class="product-subtitle">{{ product.subtitle }}</p><p class="product-description">{{ product.description }}</p>
+            <ul class="product-highlights">@for (highlight of product.highlights; track highlight) {<li><span>✓</span> {{ highlight }}</li>}</ul>
+            <button class="product-choose" (click)="chooseCardProduct(product)" [disabled]="hasCardProduct(product.id)">{{ hasCardProduct(product.id) ? 'Already in wallet' : 'Choose this card' }}</button>
+          </article>
+        }</div>
+      } @else if (selectedProduct(); as product) {
+        <div class="catalog-customize">
+          <div class="catalog-card-preview"><span class="section-kicker">YOUR CARD PREVIEW</span><div class="bank-card" [ngClass]="'theme-' + selectedCardTheme()"><div class="bank-card-top"><span>nord<span>ledger</span></span><span class="card-wave">◉</span></div><div class="card-chip">▦</div><div class="card-digits">•••• &nbsp; •••• &nbsp; •••• &nbsp; {{ product.last4 }}</div><div class="bank-card-bottom"><span><small>CARD HOLDER</small>{{ bank.customer.name | uppercase }}</span><span><small>EXPIRES</small>11/30</span><strong>VISA</strong></div></div><div class="catalog-product-caption"><strong>{{ product.name }}</strong><span>{{ product.format }} · Fictional demo card</span></div></div>
+          <div class="catalog-card-form">
+            @if (catalogStep() === 'customize') {
+              <span class="section-kicker">PERSONALIZE YOUR CHOICE</span><h3>Make it yours.</h3><p>{{ product.description }}</p>
+              <label class="field-label" for="new-card-account">LINKED DEMO ACCOUNT</label><div class="select-wrap"><select id="new-card-account" [value]="selectedCardAccountId()" (change)="onSelectedCardAccount($event)">@for (account of bank.accounts; track account.id) {@if (product.accountIds.includes(account.id)) {<option [value]="account.id" [selected]="account.id === selectedCardAccountId()">{{ account.name }}</option>}}</select><span>⌄</span></div>
+              <div class="field-label">SIGNATURE FINISH</div><div class="catalog-theme-options">@for (design of designs; track design.id) {<button [class.active]="selectedCardTheme() === design.id" [attr.aria-pressed]="selectedCardTheme() === design.id" (click)="selectedCardTheme.set(design.id)"><span class="theme-swatch" [ngClass]="'theme-' + design.id"></span>{{ design.label }}</button>}</div>
+              <div class="catalog-form-actions"><button class="outline-button" (click)="catalogStep.set('compare')">Back to compare</button><button class="dark-button" (click)="catalogStep.set('review')">Review choice</button></div>
+            } @else {
+              <span class="section-kicker">ONE LAST LOOK</span><h3>Ready for your wallet.</h3><p>Review your choices before adding this fictional card.</p><div class="review-facts"><div><span>Card</span><strong>{{ product.name }}</strong></div><div><span>Account</span><strong>{{ accountName(selectedCardAccountId()) }}</strong></div><div><span>Finish</span><strong>{{ selectedCardTheme() | titlecase }}</strong></div><div><span>Cost</span><strong>No real charge</strong></div></div>
+              @if (product.category === 'Credit') {<div class="catalog-credit-note">This is a visual credit-card concept only. No credit line, lending, interest or approval is provided.</div>}
+              <div class="catalog-form-actions"><button class="outline-button" (click)="catalogStep.set('customize')">Change details</button><button class="dark-button" (click)="issueDemoCard()" [disabled]="cardIssuing()">{{ cardIssuing() ? 'Adding card...' : 'Add to demo wallet' }}</button></div>
+            }
+            @if (error()) {<div class="inline-error" role="alert">{{ error() }}</div>}
+          </div>
+        </div>
+      }
+      <footer class="catalog-footer">✳ All balances, products and card details are fictional. No card issuance or lending occurs.</footer>
+    </section>
+  </div>
+}
+@if (activityCard(); as card) {
+  <div class="modal-backdrop activity-backdrop" (click)="closeCardActivity()" role="presentation"><section class="activity-dialog" role="dialog" aria-modal="true" aria-labelledby="activity-title" (click)="$event.stopPropagation()"><div class="drawer-header"><div><span class="section-kicker">CARD HISTORY</span><h2 id="activity-title">{{ card.name }} activity</h2></div><button class="modal-close" (click)="closeCardActivity()" aria-label="Close card activity">×</button></div><p class="activity-subtitle">Management actions recorded by the demo REST API. These are not purchase transactions.</p><div class="activity-card-meta"><strong>•••• {{ card.last4 }}</strong><span>{{ card.frozen ? 'Frozen' : 'Active' }} · {{ accountName(card.accountId) }}</span></div>
+    @if (activityLoading()) {<p>Loading activity...</p>} @else if (cardActivity().length === 0) {<p>No card activity in this demo session yet.</p>} @else {<ol class="activity-timeline">@for (event of cardActivity(); track event.id) {<li><span class="activity-marker">✳</span><div><strong>{{ event.label }}</strong><p>{{ event.detail }}</p><small>{{ activityDate(event.date) }}</small></div></li>}</ol>}
+    @if (error()) {<div class="inline-error" role="alert">{{ error() }}</div>}
+    <div class="activity-dialog-actions"><button class="outline-button" (click)="closeCardActivity()">Done</button>@if (card.removable) {<button class="close-card-link" (click)="askCloseCard(card)">Close this demo card</button>}</div>
+  </section></div>
+}
+@if (closingCardId()) {
+  <div class="modal-backdrop close-card-backdrop" (click)="cancelCloseCard()" role="presentation"><section class="close-card-dialog" role="alertdialog" aria-modal="true" aria-labelledby="close-card-title" (click)="$event.stopPropagation()"><span class="section-kicker">CARD MANAGEMENT</span><h2 id="close-card-title">Close this demo card?</h2><p>It will disappear from your temporary wallet. You can add it again from the card collection.</p>@if (error()) {<div class="inline-error" role="alert">{{ error() }}</div>}<div class="catalog-form-actions"><button class="outline-button" (click)="cancelCloseCard()">Keep card</button><button class="dark-button" (click)="confirmCloseCard()" [disabled]="cardClosing()">{{ cardClosing() ? 'Closing...' : 'Close demo card' }}</button></div></section></div>
+}
+@if (toast()) {<div class="toast-message" role="status"><span>✓</span> {{ toast() }}</div>}
